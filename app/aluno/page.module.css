@@ -1,0 +1,13 @@
+.main {
+  display: flex;
+  flex-wrap: wrap;
+  /* place-content: center; */
+  height: 100vh;
+}
+
+.stepperBox {
+  display: flex;
+  flex-wrap: wrap;
+  place-content: center;
+  margin-top: 1.75rem;
+}
