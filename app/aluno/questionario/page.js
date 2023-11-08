@@ -302,7 +302,7 @@ export default function Aluno() {
                       Confirmar Dados
                     </Button>
                   ) : (
-                    <Button onClick={handleNext} variant="contained" >
+                    <Button onClick={handleNext} variant="contained" disabled={respostas[activeStep].idAtividade === -1} >
                       {activeStep === 4 ? 'Finalizar' : 'Próximo'}
                     </Button>
                   )}
