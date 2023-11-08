@@ -98,13 +98,6 @@ export default function Aluno() {
     setActiveStep((prevActiveStep) => prevActiveStep - 1);
   };
 
-  const handleReset = () => {
-    setNome("");
-    setLivro(0);
-    setSerie(0);
-    setActiveStep(0);
-  };
-
   const checkStepDone = () => {
     if (activeStep === 0) {
       if (nome !== "") {
@@ -218,7 +211,7 @@ export default function Aluno() {
       ) : ""}
       {livro !== 0 ? (
         <Typography sx={{ mt: 2, mb: 1 }}>
-          Livro: {livro}
+          Livro: {livrosData.find(x => x.value === livro).label}
         </Typography>
       ) : ""}
       {serie !== 0 ? (
@@ -232,7 +225,7 @@ export default function Aluno() {
 
   const confirmarDados = () => {
     console.log("Confirmar Dados");
-    router.push('/aluno/questionario');
+    router.push(`/aluno/atividades?livro=${livro}&serie=${serie}`);
   }
 
   return (

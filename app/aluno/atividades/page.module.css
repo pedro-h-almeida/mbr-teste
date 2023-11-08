@@ -22,9 +22,9 @@
   margin-top: 1rem;
 }
 
-.stepperBox {
-  display: flex;
-  flex-wrap: wrap;
-  place-content: center;
-  margin-top: 1.75rem;
+.alternativaRadio {
+  background-color: rgb(245,245,245);
+  margin: 5px;
+  border-radius: 40px;
+  width: "100%";
 }
