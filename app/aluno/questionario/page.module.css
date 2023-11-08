@@ -1,12 +1,16 @@
 .main {
   display: flex;
   flex-wrap: wrap;
-  /* place-content: center; */
+  place-content: center;
   height: 100vh;
 }
 
 .stepperHeader {
   margin-bottom: 1rem;
+  display: flex;
+  flex-wrap: wrap;
+  place-content: center;
+  width: 100%;
 }
 
 .stepperBody {
