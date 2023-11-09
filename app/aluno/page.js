@@ -23,48 +23,6 @@ import { Fragment, useState } from 'react';
 import styles from './page.module.css';
 
 
-const steps = ['Nome', 'Livro', 'Série'];
-
-const livrosData = [
-  {
-    value: 1,
-    label: "Português",
-    img: "/brasil.png"
-  },
-  {
-    value: 2,
-    label: "Inglês",
-    img: "/estados-unidos.png"
-  },
-  {
-    value: 3,
-    label: "Espanhol",
-    img: "/espanha.png"
-  },
-]
-
-const seriesData = [
-  {
-    value: 1,
-    label: "1ª Serie"
-  },
-  {
-    value: 2,
-    label: "2ª Serie"
-  },
-  {
-    value: 3,
-    label: "3ª Serie"
-  },
-  {
-    value: 4,
-    label: "4ª Serie"
-  },
-  {
-    value: 5,
-    label: "5ª Serie"
-  }
-]
 
 
 export default function Aluno() {
@@ -72,9 +30,51 @@ export default function Aluno() {
   const [livro, setLivro] = useState(0)
   const [serie, setSerie] = useState(0)
   const [activeStep, setActiveStep] = useState(0);
-
+  
+  const [livrosData, setLivrosData] = useState([
+    {
+      value: 1,
+      label: "Português",
+      img: "/brasil.png"
+    },
+    {
+      value: 2,
+      label: "Inglês",
+      img: "/estados-unidos.png"
+    },
+    {
+      value: 3,
+      label: "Espanhol",
+      img: "/espanha.png"
+    },
+  ]);
+  const [seriesData, setSeriesData] = useState([
+    {
+      value: 1,
+      label: "1ª Serie"
+    },
+    {
+      value: 2,
+      label: "2ª Serie"
+    },
+    {
+      value: 3,
+      label: "3ª Serie"
+    },
+    {
+      value: 4,
+      label: "4ª Serie"
+    },
+    {
+      value: 5,
+      label: "5ª Serie"
+    }
+  ])
+  
   const router = useRouter();
 
+  const steps = ['Nome', 'Livro', 'Série'];
+  
 
   const handleLivroChange = (event, newLivroId) => {
     if (newLivroId !== null) {
