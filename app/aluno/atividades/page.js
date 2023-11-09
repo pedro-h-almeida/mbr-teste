@@ -16,125 +16,8 @@ import Radio from '@mui/material/Radio';
 import RadioGroup from '@mui/material/RadioGroup';
 import Typography from '@mui/material/Typography';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { Fragment, useState } from 'react';
+import { Fragment, useState, useEffect } from 'react';
 import styles from './page.module.css';
-
-
-
-
-
-const atividadesData = [
-  {
-    idAtividade: 1,
-    descAtividade: "Descrição Atividade 1",
-    alternativas: [
-      {
-        idAlternativa: 1,
-        decAlternativa: "Desc Alt 1"
-      },
-      {
-        idAlternativa: 2,
-        decAlternativa: "Desc Alt 2"
-      },
-      {
-        idAlternativa: 3,
-        decAlternativa: "Desc Alt 3 (Certa)"
-      },
-      {
-        idAlternativa: 4,
-        decAlternativa: "Desc Alt 4"
-      }
-    ]
-  },
-  {
-    idAtividade: 2,
-    descAtividade: "Descrição Atividade 2",
-    alternativas: [
-      {
-        idAlternativa: 5,
-        decAlternativa: "Desc Alt 1 (Certa)"
-      },
-      {
-        idAlternativa: 6,
-        decAlternativa: "Desc Alt 2"
-      },
-      {
-        idAlternativa: 7,
-        decAlternativa: "Desc Alt 3"
-      },
-      {
-        idAlternativa: 8,
-        decAlternativa: "Desc Alt 4"
-      }
-    ]
-  },
-  {
-    idAtividade: 3,
-    descAtividade: "Descrição Atividade 3",
-    alternativas: [
-      {
-        idAlternativa: 9,
-        decAlternativa: "Desc Alt 1"
-      },
-      {
-        idAlternativa: 10,
-        decAlternativa: "Desc Alt 2"
-      },
-      {
-        idAlternativa: 11,
-        decAlternativa: "Desc Alt 3"
-      },
-      {
-        idAlternativa: 12,
-        decAlternativa: "Desc Alt 4 (Certa)"
-      }
-    ]
-  },
-  {
-    idAtividade: 4,
-    descAtividade: "Descrição Atividade 4",
-    alternativas: [
-      {
-        idAlternativa: 13,
-        decAlternativa: "Desc Alt 1"
-      },
-      {
-        idAlternativa: 14,
-        decAlternativa: "Desc Alt 2 (Certa)"
-      },
-      {
-        idAlternativa: 15,
-        decAlternativa: "Desc Alt 3"
-      },
-      {
-        idAlternativa: 16,
-        decAlternativa: "Desc Alt 4"
-      }
-    ]
-  },
-  {
-    idAtividade: 5,
-    descAtividade: "Descrição Atividade 5",
-    alternativas: [
-      {
-        idAlternativa: 17,
-        decAlternativa: "Desc Alt 1"
-      },
-      {
-        idAlternativa: 18,
-        decAlternativa: "Desc Alt 2 (Certa)"
-      },
-      {
-        idAlternativa: 19,
-        decAlternativa: "Desc Alt 3"
-      },
-      {
-        idAlternativa: 20,
-        decAlternativa: "Desc Alt 4"
-      }
-    ]
-  },
-]
 
 
 const respostasUsuario = [
@@ -160,41 +43,54 @@ const respostasUsuario = [
   },
 ]
 
-const respostasCorretas = [
-  {
-    idAtividade: 1,
-    idAlternativa: 3,
-  },
-  {
-    idAtividade: 2,
-    idAlternativa: 5,
-  },
-  {
-    idAtividade: 3,
-    idAlternativa: 12,
-  },
-  {
-    idAtividade: 4,
-    idAlternativa: 14,
-  },
-  {
-    idAtividade: 5,
-    idAlternativa: 18,
-  },
-]
-
-
-
-
 
 export default function Aluno() {
   const [activeStep, setActiveStep] = useState(0);
   const [isAtividadeDone, setIsAtividadeDone] = useState(false);
+  const [isLoading, setLoading] = useState(true)
+
+  const [atividadesData, setAtividadesData] = useState([]);
+  const [respostasCorretas, setRespostasCorretas] = useState([
+    {
+      idAtividade: 78,
+      idAlternativa: 160,
+    },
+    {
+      idAtividade: 79,
+      idAlternativa: 162,
+    },
+    {
+      idAtividade: 80,
+      idAlternativa: 169,
+    },
+    {
+      idAtividade: 81,
+      idAlternativa: 171,
+    },
+    {
+      idAtividade: 82,
+      idAlternativa: 175,
+    },
+  ]);
+
+
   const router = useRouter();
   const searchParams = useSearchParams()
 
   const livroId = searchParams.get('livro')
   const serieId = searchParams.get('serie')
+
+  useEffect(() => {
+    console.log(`http://localhost:3001/atividades/${livroId}/${serieId}`);
+    fetch(`http://localhost:3001/atividades/${livroId}/${serieId}`)
+      .then((res) => res.json())
+      .then((data) => {
+        console.log(data);
+        setAtividadesData(data.data);
+        // setLivrosData(data.results);
+        setLoading(false)
+      }).catch((err) => console.log(err))
+  }, [])
 
   // ---------------------------------------------------------------
   // Controles do stepper
@@ -274,7 +170,7 @@ export default function Aluno() {
             const alternativaIndex = atividadeObj.alternativas.findIndex(x => x.idAlternativa === element.idAlternativa);
 
             const atividadeDesc = `${index + 1}) ${atividadeObj.descAtividade}`;
-            const alternativaDesc = `${alternativaIndex === 0 ? 'A' : alternativaIndex === 1 ? 'B' : alternativaIndex === 2 ? 'C' : 'D'} - ${alternativaObj.decAlternativa}`
+            const alternativaDesc = `${alternativaIndex === 0 ? 'A' : alternativaIndex === 1 ? 'B' : alternativaIndex === 2 ? 'C' : 'D'} - ${alternativaObj.descAlternativa}`
             return (
               <Fragment key={index}>
                 {index === 0 ? (
@@ -303,14 +199,25 @@ export default function Aluno() {
     let respostasCertasCount = 0;
 
     for (const element of respostasUsuario) {
-      const idRespostaCerta = respostasCorretas.find(x => x.idAtividade === element.idAtividade).idAlternativa;
-      if (element.idAlternativa === idRespostaCerta) {
-        respostasCertasCount += 1;
+      const respostaCorretaObj = respostasCorretas.find(x => x.idAtividade === element.idAtividade)
+      if (respostaCorretaObj) {
+        if (element.idAlternativa === respostaCorretaObj.idAlternativa) {
+          respostasCertasCount += 1;
+        }
       }
     }
 
     return `${respostasCertasCount} / 5`
   }
+
+  if (isLoading) return <p>Loading...</p>
+  if (atividadesData.length === 0) return (
+    <Box className={styles.main} >
+      <Typography variant="h4" style={{ paddingBottom: "1rem" }} >
+        Nenhuma atividade cadastrada
+      </Typography>
+    </Box>
+  )
 
   return (
     <Box className={styles.main} >
@@ -323,7 +230,6 @@ export default function Aluno() {
       >
         <Grid item xs={8}>
           <Card variant="outlined" style={{ borderRadius: 20 }}>
-
             {
               isAtividadeDone ?
                 (
@@ -364,10 +270,10 @@ export default function Aluno() {
                               value={handleValue()}
                               onChange={handleChangeValue}
                             >
-                              <FormControlLabel className={styles.alternativaRadio} value={0} control={<Radio />} label={`A - ${atividadesData[activeStep].alternativas[0].decAlternativa}`} />
-                              <FormControlLabel className={styles.alternativaRadio} value={1} control={<Radio />} label={`B - ${atividadesData[activeStep].alternativas[1].decAlternativa}`} />
-                              <FormControlLabel className={styles.alternativaRadio} value={2} control={<Radio />} label={`C - ${atividadesData[activeStep].alternativas[2].decAlternativa}`} />
-                              <FormControlLabel className={styles.alternativaRadio} value={3} control={<Radio />} label={`D - ${atividadesData[activeStep].alternativas[3].decAlternativa}`} />
+                              <FormControlLabel className={styles.alternativaRadio} value={0} control={<Radio />} label={`A - ${atividadesData[activeStep].alternativas[0].descAlternativa}`} />
+                              <FormControlLabel className={styles.alternativaRadio} value={1} control={<Radio />} label={`B - ${atividadesData[activeStep].alternativas[1].descAlternativa}`} />
+                              <FormControlLabel className={styles.alternativaRadio} value={2} control={<Radio />} label={`C - ${atividadesData[activeStep].alternativas[2].descAlternativa}`} />
+                              <FormControlLabel className={styles.alternativaRadio} value={3} control={<Radio />} label={`D - ${atividadesData[activeStep].alternativas[3].descAlternativa}`} />
                             </RadioGroup>
                           </FormControl>
                         )

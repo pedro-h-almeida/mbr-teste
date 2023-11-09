@@ -19,8 +19,10 @@ import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
 import Typography from '@mui/material/Typography';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
-import { Fragment, useState } from 'react';
+import { Fragment, useState, useEffect } from 'react';
 import styles from './page.module.css';
+import CircularProgress from '@mui/material/CircularProgress';
+import { fetchWrapper } from '../utils/fetch';
 
 
 
@@ -30,51 +32,32 @@ export default function Aluno() {
   const [livro, setLivro] = useState(0)
   const [serie, setSerie] = useState(0)
   const [activeStep, setActiveStep] = useState(0);
-  
-  const [livrosData, setLivrosData] = useState([
-    {
-      value: 1,
-      label: "Português",
-      img: "/brasil.png"
-    },
-    {
-      value: 2,
-      label: "Inglês",
-      img: "/estados-unidos.png"
-    },
-    {
-      value: 3,
-      label: "Espanhol",
-      img: "/espanha.png"
-    },
-  ]);
-  const [seriesData, setSeriesData] = useState([
-    {
-      value: 1,
-      label: "1ª Serie"
-    },
-    {
-      value: 2,
-      label: "2ª Serie"
-    },
-    {
-      value: 3,
-      label: "3ª Serie"
-    },
-    {
-      value: 4,
-      label: "4ª Serie"
-    },
-    {
-      value: 5,
-      label: "5ª Serie"
-    }
-  ])
-  
+
+  const [isLoading, setLoading] = useState(true)
+
+  const [livrosData, setLivrosData] = useState([]);
+  const [seriesData, setSeriesData] = useState([])
+
   const router = useRouter();
 
   const steps = ['Nome', 'Livro', 'Série'];
-  
+
+  useEffect(() => {
+    fetch('http://localhost:3001/livros')
+      .then((res) => res.json())
+      .then((data) => {
+        console.log(data.results);
+        setLivrosData(data.results);
+        fetch('http://localhost:3001/series')
+          .then((res) => res.json())
+          .then((data) => {
+            console.log(data);
+            setSeriesData(data.results);
+            setLoading(false)
+          }).catch((err) => console.log(err))
+      }).catch((err) => console.log(err))
+  }, [])
+
 
   const handleLivroChange = (event, newLivroId) => {
     if (newLivroId !== null) {
@@ -227,7 +210,6 @@ export default function Aluno() {
     console.log("Confirmar Dados");
     router.push(`/aluno/atividades?livro=${livro}&serie=${serie}`);
   }
-
   return (
     <Box className={styles.main} >
       <Grid
@@ -243,73 +225,79 @@ export default function Aluno() {
           </Typography>
         </Grid>
         <Grid item xs={8}>
-          <Card variant="outlined" style={{ borderRadius: 20 }}>
-            <CardContent>
-              {/* 
+          {isLoading ? (
+            <Box style={{ placeContent: "center", display: "flex" }} >
+              <CircularProgress style={{ width: "7rem", height: "7rem" }} />
+            </Box>
+          ) : (
+            <Card variant="outlined" style={{ borderRadius: 20 }}>
+              <CardContent>
+                {/* 
                 Header do stepper
               */}
-              <Box id="stepper-header" className={styles.stepperHeader}>
-                <Stepper activeStep={activeStep} >
-                  {steps.map((label, index) => {
-                    const stepProps = {};
-                    const labelProps = {};
+                <Box id="stepper-header" className={styles.stepperHeader}>
+                  <Stepper activeStep={activeStep} >
+                    {steps.map((label, index) => {
+                      const stepProps = {};
+                      const labelProps = {};
 
-                    return (
-                      <Step key={label} {...stepProps}>
-                        <StepLabel {...labelProps}>{label}</StepLabel>
-                      </Step>
-                    );
-                  })}
-                </Stepper>
-              </Box>
-              <Divider />
-              {/* 
+                      return (
+                        <Step key={label} {...stepProps}>
+                          <StepLabel {...labelProps}>{label}</StepLabel>
+                        </Step>
+                      );
+                    })}
+                  </Stepper>
+                </Box>
+                <Divider />
+                {/* 
                Body do stepper
               */}
-              <Box id="stepper-body" className={styles.stepperBody}>
-                {activeStep === 0 ? (
-                  // Step Nome 
-                  nomeStep
-                ) : (activeStep === 1 ? (
-                  // Step Livro
-                  livroStep
-                ) : (activeStep === 2 ? (
-                  // Step Série
-                  serieStep
-                ) : (
-                  // Confirmar dados Step
-                  confirmarDadosStep
-                )))}
-              </Box>
-              <Divider />
-              {/* 
+                <Box id="stepper-body" className={styles.stepperBody}>
+                  {activeStep === 0 ? (
+                    // Step Nome 
+                    nomeStep
+                  ) : (activeStep === 1 ? (
+                    // Step Livro
+                    livroStep
+                  ) : (activeStep === 2 ? (
+                    // Step Série
+                    serieStep
+                  ) : (
+                    // Confirmar dados Step
+                    confirmarDadosStep
+                  )))}
+                </Box>
+                <Divider />
+                {/* 
                 Footer do stepper
               */}
-              <Box id="stepper-footer" className={styles.stepperFooter}>
-                <Box sx={{ display: 'flex', flexDirection: 'row', pt: 2 }}>
-                  <Button
-                    color="inherit"
-                    variant="contained"
-                    disabled={activeStep === 0}
-                    onClick={handleBack}
-                    sx={{ mr: 1 }}
-                  >
-                    Voltar
-                  </Button>
-                  <Box sx={{ flex: '1 1 auto' }} />
-                  {activeStep === steps.length ? (
-                    <Button onClick={confirmarDados} variant="contained" >
-                      Confirmar Dados
+                <Box id="stepper-footer" className={styles.stepperFooter}>
+                  <Box sx={{ display: 'flex', flexDirection: 'row', pt: 2 }}>
+                    <Button
+                      color="inherit"
+                      variant="contained"
+                      disabled={activeStep === 0}
+                      onClick={handleBack}
+                      sx={{ mr: 1 }}
+                    >
+                      Voltar
                     </Button>
-                  ) : (
-                    <Button onClick={handleNext} variant="contained" disabled={checkStepDone()}>
-                      {activeStep === steps.length - 1 ? 'Finalizar' : 'Próximo'}
-                    </Button>
-                  )}
+                    <Box sx={{ flex: '1 1 auto' }} />
+                    {activeStep === steps.length ? (
+                      <Button onClick={confirmarDados} variant="contained" >
+                        Confirmar Dados
+                      </Button>
+                    ) : (
+                      <Button onClick={handleNext} variant="contained" disabled={checkStepDone()}>
+                        {activeStep === steps.length - 1 ? 'Finalizar' : 'Próximo'}
+                      </Button>
+                    )}
+                  </Box>
                 </Box>
-              </Box>
-            </CardContent>
-          </Card>
+              </CardContent>
+            </Card>
+          )}
         </Grid>
       </Grid>
     </Box >
