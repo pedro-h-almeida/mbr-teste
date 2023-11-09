@@ -32,23 +32,20 @@ export default function Aluno() {
   const [livro, setLivro] = useState(0)
   const [serie, setSerie] = useState(0)
   const [activeStep, setActiveStep] = useState(0);
-
   const [isLoading, setLoading] = useState(true)
-
   const [livrosData, setLivrosData] = useState([]);
   const [seriesData, setSeriesData] = useState([])
 
   const router = useRouter();
-
   const steps = ['Nome', 'Livro', 'Série'];
 
   useEffect(() => {
-    fetch('http://localhost:3001/livros')
+    fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/livros`)
       .then((res) => res.json())
       .then((data) => {
         console.log(data.results);
         setLivrosData(data.results);
-        fetch('http://localhost:3001/series')
+        fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/series`)
           .then((res) => res.json())
           .then((data) => {
             console.log(data);
@@ -58,6 +55,9 @@ export default function Aluno() {
       }).catch((err) => console.log(err))
   }, [])
 
+
+  // ---------------------------------------------------------------
+  // Handles
 
   const handleLivroChange = (event, newLivroId) => {
     if (newLivroId !== null) {
@@ -69,10 +69,6 @@ export default function Aluno() {
     setSerie(event.target.value);
   };
 
-
-  // ---------------------------------------------------------------
-  // Controles do stepper
-
   const handleNext = () => {
     setActiveStep((prevActiveStep) => prevActiveStep + 1);
   };
@@ -80,6 +76,8 @@ export default function Aluno() {
   const handleBack = () => {
     setActiveStep((prevActiveStep) => prevActiveStep - 1);
   };
+
+  // ---------------------------------------------------------------
 
   const checkStepDone = () => {
     if (activeStep === 0) {
@@ -99,117 +97,126 @@ export default function Aluno() {
     }
     return true
   }
-  // ---------------------------------------------------------------
+
+  const confirmarDados = () => {
+    localStorage.setItem("nome", nome)
+    router.push(`/aluno/atividades?livro=${livro}&serie=${serie}`);
+  }
 
   // ---------------------------------------------------------------
-  // Elementos do body do stepper
+  // Components
 
   // Step 1 \\\\--\\\\ activeStep === 0
-  const nomeStep = (
-    <Fragment>
-      <Typography variant="h5" style={{ paddingBottom: "1.5rem" }} >
-        Gostariamos de saber seu nome:
-      </Typography>
-      <TextField
-        id="outlined-controlled"
-        label="Nome"
-        value={nome}
-        onChange={(event) => {
-          setNome(event.target.value);
-        }}
-      />
-    </Fragment>
-  );
+  const nomeStep = () => {
+    return (
+      <Fragment>
+        <Typography variant="h5" style={{ paddingBottom: "1.5rem" }} >
+          Gostariamos de saber seu nome:
+        </Typography>
+        <TextField
+          id="outlined-controlled"
+          label="Nome"
+          value={nome}
+          onChange={(event) => {
+            setNome(event.target.value);
+          }}
+        />
+      </Fragment>
+    )
+  };
 
   // Step 2 \\\\--\\\\ activeStep === 1
-  const livroStep = (
-    <Fragment>
-      <Typography variant="h5" style={{ paddingBottom: "1.5rem" }} >
-        Qual livro você está cursando?
-      </Typography>
-      <ToggleButtonGroup
-        color="primary"
-        value={livro}
-        exclusive
-        onChange={handleLivroChange}
-        aria-label="Livro"
-      >
-        {livrosData.map((element, index) => {
-          return (
-            <ToggleButton key={element.value} value={element.value}>
-              <Image
-                src={element.img}
-                alt=""
-                width={40}
-                height={40}
-                priority
-                style={{ marginRight: 5 }}
-              />
-              {element.label}
-            </ToggleButton>
-          );
-        })}
-
-      </ToggleButtonGroup>
-    </Fragment>
-  );
-
-  // Step 3 \\\\--\\\\ activeStep === 2
-  const serieStep = (
-    <Fragment>
-      <Typography variant="h5" style={{ paddingBottom: "1.5rem" }} >
-        Em que série você está?
-      </Typography>
-      <FormControl style={{ width: "40%" }}>
-        <InputLabel id="demo-simple-select-label">Série</InputLabel>
-        <Select
-          labelId="demo-simple-select-label"
-          id="demo-simple-select"
-          value={serie}
-          label="Série"
-          onChange={handleSerieChange}
+  const livroStep = () => {
+    return (
+      <Fragment>
+        <Typography variant="h5" style={{ paddingBottom: "1.5rem" }} >
+          Qual livro você está cursando?
+        </Typography>
+        <ToggleButtonGroup
+          color="primary"
+          value={livro}
+          exclusive
+          onChange={handleLivroChange}
+          aria-label="Livro"
         >
-          <MenuItem value={0} />
-          {seriesData.map((element, index) => {
+          {livrosData.map((element, index) => {
             return (
-              <MenuItem key={element.value} value={element.value}>{element.label}</MenuItem>
+              <ToggleButton key={element.value} value={element.value}>
+                <Image
+                  src={element.img}
+                  alt=""
+                  width={40}
+                  height={40}
+                  priority
+                  style={{ marginRight: 5 }}
+                />
+                {element.label}
+              </ToggleButton>
             );
           })}
-        </Select>
-      </FormControl>
-    </Fragment>
-  );
+
+        </ToggleButtonGroup>
+      </Fragment>
+    )
+  };
+
+  // Step 3 \\\\--\\\\ activeStep === 2
+  const serieStep = () => {
+    return (
+      <Fragment>
+        <Typography variant="h5" style={{ paddingBottom: "1.5rem" }} >
+          Em que série você está?
+        </Typography>
+        <FormControl style={{ width: "40%" }}>
+          <InputLabel id="demo-simple-select-label">Série</InputLabel>
+          <Select
+            labelId="demo-simple-select-label"
+            id="demo-simple-select"
+            value={serie}
+            label="Série"
+            onChange={handleSerieChange}
+          >
+            <MenuItem value={0} />
+            {seriesData.map((element, index) => {
+              return (
+                <MenuItem key={element.value} value={element.value}>{element.label}</MenuItem>
+              );
+            })}
+          </Select>
+        </FormControl>
+      </Fragment>
+    )
+  };
 
   // Step 3 \\\\--\\\\ activeStep === 3
   // Stepe adicional apenas para confirmar os dados dos steps anteriores
-  const confirmarDadosStep = (
-    <Fragment>
-      <Typography variant="h5" style={{ paddingBottom: "1.5rem" }} >
-        Seus dados estão corretos?
-      </Typography>
-      {nome !== "" ? (
-        <Typography sx={{ mb: 1 }}>
-          Nome: {nome}
+  const confirmarDadosStep = () => {
+    return (
+      <Fragment>
+        <Typography variant="h5" style={{ paddingBottom: "1.5rem" }} >
+          Seus dados estão corretos?
         </Typography>
-      ) : ""}
-      {livro !== 0 ? (
-        <Typography sx={{ mt: 2, mb: 1 }}>
-          Livro: {livrosData.find(x => x.value === livro).label}
-        </Typography>
-      ) : ""}
-      {serie !== 0 ? (
-        <Typography sx={{ mt: 2, mb: 1 }}>
-          Série: {seriesData.find(x => x.value === serie).label}
-        </Typography>
-      ) : ""}
-    </Fragment>
-  );
+        {nome !== "" ? (
+          <Typography sx={{ mb: 1 }}>
+            Nome: {nome}
+          </Typography>
+        ) : ""}
+        {livro !== 0 ? (
+          <Typography sx={{ mt: 2, mb: 1 }}>
+            Livro: {livrosData.find(x => x.value === livro).label}
+          </Typography>
+        ) : ""}
+        {serie !== 0 ? (
+          <Typography sx={{ mt: 2, mb: 1 }}>
+            Série: {seriesData.find(x => x.value === serie).label}
+          </Typography>
+        ) : ""}
+      </Fragment>
+    )
+  };
   // ---------------------------------------------------------------
 
-  const confirmarDados = () => {
-    console.log("Confirmar Dados");
-    router.push(`/aluno/atividades?livro=${livro}&serie=${serie}`);
-  }
+
   return (
     <Box className={styles.main} >
       <Grid
@@ -233,8 +240,8 @@ export default function Aluno() {
             <Card variant="outlined" style={{ borderRadius: 20 }}>
               <CardContent>
                 {/* 
-                Header do stepper
-              */}
+                  Header do stepper
+                */}
                 <Box id="stepper-header" className={styles.stepperHeader}>
                   <Stepper activeStep={activeStep} >
                     {steps.map((label, index) => {
@@ -251,27 +258,27 @@ export default function Aluno() {
                 </Box>
                 <Divider />
                 {/* 
-               Body do stepper
-              */}
+                  Body do stepper
+                */}
                 <Box id="stepper-body" className={styles.stepperBody}>
                   {activeStep === 0 ? (
                     // Step Nome 
-                    nomeStep
+                    nomeStep()
                   ) : (activeStep === 1 ? (
                     // Step Livro
-                    livroStep
+                    livroStep()
                   ) : (activeStep === 2 ? (
                     // Step Série
-                    serieStep
+                    serieStep()
                   ) : (
                     // Confirmar dados Step
-                    confirmarDadosStep
+                    confirmarDadosStep()
                   )))}
                 </Box>
                 <Divider />
                 {/* 
-                Footer do stepper
-              */}
+                  Footer do stepper
+                */}
                 <Box id="stepper-footer" className={styles.stepperFooter}>
                   <Box sx={{ display: 'flex', flexDirection: 'row', pt: 2 }}>
                     <Button

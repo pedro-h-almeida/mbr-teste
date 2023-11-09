@@ -49,9 +49,13 @@ export default function Aluno() {
   const [activeStep, setActiveStep] = useState(0);
   const [isAtividadeDone, setIsAtividadeDone] = useState(false);
   const [isLoading, setLoading] = useState(true)
-
   const [atividadesData, setAtividadesData] = useState([]);
   const [respostasCorretas, setRespostasCorretas] = useState([]);
+  const [value1, setValue1] = useState(null);
+  const [value2, setValue2] = useState(null);
+  const [value3, setValue3] = useState(null);
+  const [value4, setValue4] = useState(null);
+  const [value5, setValue5] = useState(null);
 
 
   const router = useRouter();
@@ -61,7 +65,7 @@ export default function Aluno() {
   const serieId = searchParams.get('serie')
 
   useEffect(() => {
-    fetch(`http://localhost:3001/atividades/${livroId}/${serieId}`)
+    fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/atividades/${livroId}/${serieId}`)
       .then((res) => res.json())
       .then((data) => {
         console.log(data);
@@ -72,7 +76,7 @@ export default function Aluno() {
   }, [])
 
   // ---------------------------------------------------------------
-  // Controles do stepper
+  // Handles
 
   const handleNext = () => {
     setActiveStep((prevActiveStep) => prevActiveStep + 1);
@@ -81,21 +85,6 @@ export default function Aluno() {
   const handleBack = () => {
     setActiveStep((prevActiveStep) => prevActiveStep - 1);
   };
-
-
-  const finalizarAtividades = () => {
-    setIsAtividadeDone(true);
-  }
-
-  // ---------------------------------------------------------------
-
-
-  const [value1, setValue1] = useState(null);
-  const [value2, setValue2] = useState(null);
-  const [value3, setValue3] = useState(null);
-  const [value4, setValue4] = useState(null);
-  const [value5, setValue5] = useState(null);
-
 
   const handleValue = () => {
     if (activeStep === 0) {
@@ -134,6 +123,27 @@ export default function Aluno() {
     respostasUsuario[activeStep].idAtividade = atividadesData[activeStep].idAtividade;
     respostasUsuario[activeStep].idAlternativa = atividadesData[activeStep].alternativas[event.target.value].idAlternativa;
   };
+  // ---------------------------------------------------------------
+
+
+  const finalizarAtividades = () => {
+    setIsAtividadeDone(true);
+  }
+
+  const calcScore = () => {
+    let respostasCertasCount = 0;
+
+    for (const element of respostasUsuario) {
+      const respostaCorretaObj = respostasCorretas.find(x => x.idAtividade === element.idAtividade)
+      if (respostaCorretaObj) {
+        if (element.idAlternativa === respostaCorretaObj.idAlternativa) {
+          respostasCertasCount += 1;
+        }
+      }
+    }
+
+    return `${respostasCertasCount} / 5`
+  }
 
   const finalizarAtividadeStep = () => {
     return (
@@ -174,20 +184,15 @@ export default function Aluno() {
     )
   };
 
-  const calcScore = () => {
-    let respostasCertasCount = 0;
-
-    for (const element of respostasUsuario) {
-      const respostaCorretaObj = respostasCorretas.find(x => x.idAtividade === element.idAtividade)
-      if (respostaCorretaObj) {
-        if (element.idAlternativa === respostaCorretaObj.idAlternativa) {
-          respostasCertasCount += 1;
-        }
-      }
-    }
-
-    return `${respostasCertasCount} / 5`
-  }
+  const showScoreComponent = () => {
+    return (
+      <Fragment>
+        <Typography variant="h6" style={{ textAlign: "center" }} >
+          Olá {localStorage.getItem("nome")}, seu Score foi de {calcScore()}
+        </Typography>
+      </Fragment>
+    )
+  };
 
   if (isLoading) return (
     <Box className={styles.main} style={{ placeContent: "center" }} >
@@ -226,86 +231,81 @@ export default function Aluno() {
       >
         <Grid item xs={8}>
           <Card variant="outlined" style={{ borderRadius: 20 }}>
-            {
-              isAtividadeDone ?
-                (
-                  <CardContent>
-                    <Typography variant="h6" style={{ paddingBottom: "1rem" }} >
-                      Seu Score foi de {calcScore()}
-                    </Typography>
-                  </CardContent>
-                ) :
-                (
-                  <CardContent>
-                    {/* 
-                    Header do stepper
-                    */}
-                    <Box id="stepper-header" className={styles.stepperHeader}>
-                      <MobileStepper
-                        variant="dots"
-                        steps={5}
-                        position="static"
-                        activeStep={activeStep}
-                      />
-                    </Box>
-                    <Divider />
-                    {/* 
-                   Body do stepper
-                    */}
-                    <Box id="stepper-body" className={styles.stepperBody}>
-                      {activeStep === 5 ?
-                        finalizarAtividadeStep() :
-                        (
-                          <FormControl style={{ width: "100%" }}>
-                            <Typography variant="h6" style={{ paddingBottom: "1rem" }} >
-                              {`${activeStep + 1}) `} {atividadesData[activeStep].descAtividade}
-                            </Typography>
-                            <RadioGroup
-                              aria-labelledby="demo-controlled-radio-buttons-group"
-                              name="controlled-radio-buttons-group"
-                              value={handleValue()}
-                              onChange={handleChangeValue}
-                            >
-                              <FormControlLabel className={styles.alternativaRadio} value={0} control={<Radio />} label={`A - ${atividadesData[activeStep].alternativas[0].descAlternativa}`} />
-                              <FormControlLabel className={styles.alternativaRadio} value={1} control={<Radio />} label={`B - ${atividadesData[activeStep].alternativas[1].descAlternativa}`} />
-                              <FormControlLabel className={styles.alternativaRadio} value={2} control={<Radio />} label={`C - ${atividadesData[activeStep].alternativas[2].descAlternativa}`} />
-                              <FormControlLabel className={styles.alternativaRadio} value={3} control={<Radio />} label={`D - ${atividadesData[activeStep].alternativas[3].descAlternativa}`} />
-                            </RadioGroup>
-                          </FormControl>
-                        )
-                      }
 
-                    </Box>
-                    <Divider />
-                    {/* 
+            <CardContent>
+              {isAtividadeDone ? (
+                showScoreComponent()
+              ) : (
+                <Fragment>
+                  {/* 
+                    Header do stepper
+                  */}
+                  <Box id="stepper-header" className={styles.stepperHeader}>
+                    <MobileStepper
+                      variant="dots"
+                      steps={5}
+                      position="static"
+                      activeStep={activeStep}
+                    />
+                  </Box>
+                  <Divider />
+                  {/* 
+                   Body do stepper
+                  */}
+                  <Box id="stepper-body" className={styles.stepperBody}>
+                    {activeStep === 5 ?
+                      finalizarAtividadeStep() :
+                      (
+                        <FormControl style={{ width: "100%" }}>
+                          <Typography variant="h6" style={{ paddingBottom: "1rem" }} >
+                            {`${activeStep + 1}) `} {atividadesData[activeStep].descAtividade}
+                          </Typography>
+                          <RadioGroup
+                            aria-labelledby="demo-controlled-radio-buttons-group"
+                            name="controlled-radio-buttons-group"
+                            value={handleValue()}
+                            onChange={handleChangeValue}
+                          >
+                            <FormControlLabel className={styles.alternativaRadio} value={0} control={<Radio />} label={`A - ${atividadesData[activeStep].alternativas[0].descAlternativa}`} />
+                            <FormControlLabel className={styles.alternativaRadio} value={1} control={<Radio />} label={`B - ${atividadesData[activeStep].alternativas[1].descAlternativa}`} />
+                            <FormControlLabel className={styles.alternativaRadio} value={2} control={<Radio />} label={`C - ${atividadesData[activeStep].alternativas[2].descAlternativa}`} />
+                            <FormControlLabel className={styles.alternativaRadio} value={3} control={<Radio />} label={`D - ${atividadesData[activeStep].alternativas[3].descAlternativa}`} />
+                          </RadioGroup>
+                        </FormControl>
+                      )
+                    }
+
+                  </Box>
+                  <Divider />
+                  {/* 
                     Footer do stepper
-                    */}
-                    <Box id="stepper-footer" className={styles.stepperFooter}>
-                      <Box sx={{ display: 'flex', flexDirection: 'row', pt: 2 }}>
-                        <Button
-                          color="inherit"
-                          variant="contained"
-                          disabled={activeStep === 0}
-                          onClick={handleBack}
-                          sx={{ mr: 1 }}
-                        >
-                          Voltar
+                  */}
+                  <Box id="stepper-footer" className={styles.stepperFooter}>
+                    <Box sx={{ display: 'flex', flexDirection: 'row', pt: 2 }}>
+                      <Button
+                        color="inherit"
+                        variant="contained"
+                        disabled={activeStep === 0}
+                        onClick={handleBack}
+                        sx={{ mr: 1 }}
+                      >
+                        Voltar
+                      </Button>
+                      <Box sx={{ flex: '1 1 auto' }} />
+                      {activeStep === 5 ? (
+                        <Button onClick={finalizarAtividades} variant="contained" >
+                          Finalizar
                         </Button>
-                        <Box sx={{ flex: '1 1 auto' }} />
-                        {activeStep === 5 ? (
-                          <Button onClick={finalizarAtividades} variant="contained" >
-                            Finalizar
-                          </Button>
-                        ) : (
-                          <Button onClick={handleNext} variant="contained" disabled={respostasUsuario[activeStep].idAtividade === -1} >
-                            {activeStep === 4 ? 'Confirmar' : 'Próximo'}
-                          </Button>
-                        )}
-                      </Box>
+                      ) : (
+                        <Button onClick={handleNext} variant="contained" disabled={respostasUsuario[activeStep].idAtividade === -1} >
+                          {activeStep === 4 ? 'Confirmar' : 'Próximo'}
+                        </Button>
+                      )}
                     </Box>
-                  </CardContent>
-                )
-            }
+                  </Box>
+                </Fragment>
+              )}
+            </CardContent>
           </Card>
         </Grid>
       </Grid>
