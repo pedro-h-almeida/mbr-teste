@@ -18,6 +18,7 @@ import Typography from '@mui/material/Typography';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Fragment, useState, useEffect } from 'react';
 import styles from './page.module.css';
+import CircularProgress from '@mui/material/CircularProgress';
 
 
 const respostasUsuario = [
@@ -60,7 +61,6 @@ export default function Aluno() {
   const serieId = searchParams.get('serie')
 
   useEffect(() => {
-    console.log(`http://localhost:3001/atividades/${livroId}/${serieId}`);
     fetch(`http://localhost:3001/atividades/${livroId}/${serieId}`)
       .then((res) => res.json())
       .then((data) => {
@@ -189,12 +189,29 @@ export default function Aluno() {
     return `${respostasCertasCount} / 5`
   }
 
-  if (isLoading) return <p>Loading...</p>
+  if (isLoading) return (
+    <Box className={styles.main} style={{ placeContent: "center" }} >
+      <CircularProgress style={{ width: "7rem", height: "7rem" }} />
+    </Box>
+  )
   if (atividadesData.length === 0) return (
     <Box className={styles.main} >
-      <Typography variant="h4" style={{ paddingBottom: "1rem" }} >
-        Nenhuma atividade cadastrada
-      </Typography>
+      <Grid
+        container
+        spacing={2}
+        direction="row"
+        justifyContent="center"
+        alignItems="center"
+      >
+        <Grid item xs={12}>
+          <Typography variant="h4" style={{ paddingBottom: "1rem", textAlign: "center" }} >
+            Nenhuma atividade cadastrada!
+          </Typography>
+        </Grid>
+        <Grid item style={{ padding: "4rem" }}>
+          <Button variant="contained" onClick={() => router.push(`/aluno`)}>Voltar</Button>
+        </Grid>
+      </Grid>
     </Box>
   )
 
@@ -289,8 +306,6 @@ export default function Aluno() {
                   </CardContent>
                 )
             }
-
-
           </Card>
         </Grid>
       </Grid>
