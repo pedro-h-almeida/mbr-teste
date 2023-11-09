@@ -50,28 +50,7 @@ export default function Aluno() {
   const [isLoading, setLoading] = useState(true)
 
   const [atividadesData, setAtividadesData] = useState([]);
-  const [respostasCorretas, setRespostasCorretas] = useState([
-    {
-      idAtividade: 78,
-      idAlternativa: 160,
-    },
-    {
-      idAtividade: 79,
-      idAlternativa: 162,
-    },
-    {
-      idAtividade: 80,
-      idAlternativa: 169,
-    },
-    {
-      idAtividade: 81,
-      idAlternativa: 171,
-    },
-    {
-      idAtividade: 82,
-      idAlternativa: 175,
-    },
-  ]);
+  const [respostasCorretas, setRespostasCorretas] = useState([]);
 
 
   const router = useRouter();
@@ -87,7 +66,7 @@ export default function Aluno() {
       .then((data) => {
         console.log(data);
         setAtividadesData(data.data);
-        // setLivrosData(data.results);
+        setRespostasCorretas(data.respostasCorretas);
         setLoading(false)
       }).catch((err) => console.log(err))
   }, [])

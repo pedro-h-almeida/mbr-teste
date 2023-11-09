@@ -66,11 +66,6 @@ export default function Home() {
       btnText: 'Aluno',
       onClick: () => router.push('/aluno')
     },
-    {
-      url: 'https://jcconcursos.com.br/media/_versions/noticia/concurso-seed-professor-credito-freepik_widelg.jpg',
-      btnText: 'Professor',
-      onClick: () => router.push('/professor')
-    },
   ];
 
   return (
