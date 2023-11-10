@@ -34,3 +34,13 @@ Para rodar esse projeto, você vai precisar criar um arquivo .env.local e adicio
 
 React, Next.js, Material UI
 
+## Extras
+
+Minha falta de conhecimento e experiência em React representou um desafio significativo durante o desenvolvimento do aplicativo. Sinto que não consegui dar o meu máximo, muitas coisas poderiam ter sido melhores, desde o visual do site até a estruturação mais eficiente do código.
+
+De qualquer forma agradeço a oportunidade de estar realizando este teste e espero conseguir mostrar um pouco das minhas qualidades como programador.
+
+Qualquer problema ao executar ou erro no código pode criar uma issue que eu responderei.
+
+
+
