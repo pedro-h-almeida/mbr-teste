@@ -40,7 +40,7 @@ Minha falta de conhecimento e experiência em React representou um desafio signi
 
 De qualquer forma agradeço a oportunidade de estar realizando este teste e espero conseguir mostrar um pouco das minhas qualidades como programador.
 
-Qualquer problema ao executar ou erro no código pode criar uma issue que eu responderei.
+Qualquer problema ao executar o aplicativo ou erro no código pode criar uma issue que eu responderei.
 
 
 
