@@ -33,8 +33,45 @@ export default function Aluno() {
   const [serie, setSerie] = useState(0)
   const [activeStep, setActiveStep] = useState(0);
   const [isLoading, setLoading] = useState(true)
-  const [livrosData, setLivrosData] = useState([]);
-  const [seriesData, setSeriesData] = useState([])
+  const [livrosData, setLivrosData] = useState([
+    {
+      "value": 1,
+      "label": "Português",
+      "img": "/brasil.png"
+    },
+    {
+      "value": 2,
+      "label": "Inglês",
+      "img": "/estados-unidos.png"
+    },
+    {
+      "value": 3,
+      "label": "Espanhol",
+      "img": "/espanha.png"
+    }
+  ]);
+  const [seriesData, setSeriesData] = useState([
+    {
+      "value": 1,
+      "label": "1ª Serie"
+    },
+    {
+      "value": 2,
+      "label": "2ª Serie"
+    },
+    {
+      "value": 3,
+      "label": "3ª Serie"
+    },
+    {
+      "value": 4,
+      "label": "4ª Serie"
+    },
+    {
+      "value": 5,
+      "label": "5ª Serie"
+    }
+  ])
 
   const router = useRouter();
   const steps = ['Nome', 'Livro', 'Série'];
@@ -44,15 +81,25 @@ export default function Aluno() {
       .then((res) => res.json())
       .then((data) => {
         console.log(data.results);
-        setLivrosData(data.results);
+        if (data.results.length > 0) {
+          setLivrosData(data.results);
+        }
         fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/series`)
           .then((res) => res.json())
           .then((data) => {
             console.log(data);
-            setSeriesData(data.results);
+            if (data.results.length > 0) {
+              setSeriesData(data.results);
+            }
             setLoading(false)
-          }).catch((err) => console.log(err))
-      }).catch((err) => console.log(err))
+          }).catch((err) => {
+            console.log(err)
+            setLoading(false)
+          })
+      }).catch((err) => {
+        console.log(err)
+        setLoading(false)
+      })
   }, [])
 
 
@@ -111,7 +158,7 @@ export default function Aluno() {
     return (
       <Fragment>
         <Typography variant="h5" style={{ paddingBottom: "1.5rem" }} >
-          Gostariamos de saber seu nome:
+          Qual o seu nome?
         </Typography>
         <TextField
           id="outlined-controlled"
@@ -143,7 +190,7 @@ export default function Aluno() {
             return (
               <ToggleButton key={element.value} value={element.value}>
                 <Image
-                  src={element.img}
+                  src={element.img !== '' ? element.img : '/icone-mundo.png'}
                   alt=""
                   width={40}
                   height={40}
@@ -228,7 +275,7 @@ export default function Aluno() {
       >
         <Grid item xs={10} style={{ marginTop: "5rem" }}>
           <Typography style={{ textAlign: 'center' }} variant="h4">
-            Olá, precisamos de algumas informações antes de proseguir!
+            Olá, precisamos de algumas informações antes de prosseguir!
           </Typography>
         </Grid>
         <Grid item xs={8}>

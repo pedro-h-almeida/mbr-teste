@@ -49,6 +49,7 @@ export default function Aluno() {
   const [activeStep, setActiveStep] = useState(0);
   const [isAtividadeDone, setIsAtividadeDone] = useState(false);
   const [isLoading, setLoading] = useState(true)
+  const [connectionError, setConnectionError] = useState(false);
   const [atividadesData, setAtividadesData] = useState([]);
   const [respostasCorretas, setRespostasCorretas] = useState([]);
   const [value1, setValue1] = useState(null);
@@ -72,8 +73,13 @@ export default function Aluno() {
         setAtividadesData(data.data);
         setRespostasCorretas(data.respostasCorretas);
         setLoading(false)
-      }).catch((err) => console.log(err))
-  }, [])
+        setConnectionError(false)
+      }).catch((err) => {
+        console.log(err)
+        setLoading(false)
+        setConnectionError(true)
+      })
+  }, [livroId, serieId])
 
   // ---------------------------------------------------------------
   // Handles
@@ -142,7 +148,7 @@ export default function Aluno() {
       }
     }
 
-    return `${respostasCertasCount} / 5`
+    return `${respostasCertasCount} / ${atividadesData.length}`
   }
 
   const finalizarAtividadeStep = () => {
@@ -153,31 +159,32 @@ export default function Aluno() {
         </Typography>
         <List style={{ backgroundColor: "rgb(250,250,250)", borderRadius: 20, overflow: 'hidden' }}>
           {respostasUsuario.map((element, index) => {
-            console.log(element);
             const atividadeObj = atividadesData.find(x => x.idAtividade === element.idAtividade);
-            const alternativaObj = atividadeObj.alternativas.find(x => x.idAlternativa === element.idAlternativa);
-            const alternativaIndex = atividadeObj.alternativas.findIndex(x => x.idAlternativa === element.idAlternativa);
+            if (atividadeObj) {
+              const alternativaObj = atividadeObj.alternativas.find(x => x.idAlternativa === element.idAlternativa);
+              const alternativaIndex = atividadeObj.alternativas.findIndex(x => x.idAlternativa === element.idAlternativa);
 
-            const atividadeDesc = `${index + 1}) ${atividadeObj.descAtividade}`;
-            const alternativaDesc = `${alternativaIndex === 0 ? 'A' : alternativaIndex === 1 ? 'B' : alternativaIndex === 2 ? 'C' : 'D'} - ${alternativaObj.descAlternativa}`
-            return (
-              <Fragment key={index}>
-                {index === 0 ? (
-                  <Divider />
-                ) : ""}
-                <ListItem sx={{ pb: 0 }}>
-                  <ListItemText primary={atividadeDesc} />
-                </ListItem>
-                <List disablePadding>
-                  <ListItem sx={{ pl: 4, }}>
-                    <ListItemText primary={alternativaDesc} />
+              const atividadeDesc = `${index + 1}) ${atividadeObj.descAtividade}`;
+              const alternativaDesc = `${alternativaIndex === 0 ? 'A' : alternativaIndex === 1 ? 'B' : alternativaIndex === 2 ? 'C' : 'D'} - ${alternativaObj.descAlternativa}`
+              return (
+                <Fragment key={index}>
+                  {index === 0 ? (
+                    <Divider />
+                  ) : ""}
+                  <ListItem sx={{ pb: 0 }}>
+                    <ListItemText primary={atividadeDesc} />
                   </ListItem>
-                </List>
-                {index !== respostasUsuario.length ? (
-                  <Divider />
-                ) : ""}
-              </Fragment>
-            );
+                  <List disablePadding>
+                    <ListItem sx={{ pl: 4, }}>
+                      <ListItemText primary={alternativaDesc} />
+                    </ListItem>
+                  </List>
+                  {index !== respostasUsuario.length ? (
+                    <Divider />
+                  ) : ""}
+                </Fragment>
+              );
+            }
           })}
         </List>
       </Fragment>
@@ -187,9 +194,22 @@ export default function Aluno() {
   const showScoreComponent = () => {
     return (
       <Fragment>
-        <Typography variant="h6" style={{ textAlign: "center" }} >
-          Olá {localStorage.getItem("nome")}, seu Score foi de {calcScore()}
-        </Typography>
+        <Grid
+          container
+          spacing={2}
+          direction="row"
+          justifyContent="center"
+          alignItems="center"
+        >
+          <Grid item xs={12}>
+            <Typography variant="h6" style={{ textAlign: "center" }} >
+              Olá {localStorage.getItem("nome")}, seu Score foi de {calcScore()}
+            </Typography>
+          </Grid>
+          <Grid item style={{ paddingTop: "2rem" }}>
+            <Button variant="contained" onClick={() => router.push(`/aluno`)}>Voltar</Button>
+          </Grid>
+        </Grid>
       </Fragment>
     )
   };
@@ -210,7 +230,7 @@ export default function Aluno() {
       >
         <Grid item xs={12}>
           <Typography variant="h4" style={{ paddingBottom: "1rem", textAlign: "center" }} >
-            Nenhuma atividade cadastrada!
+            {connectionError ? 'Erro de Conexão, não foi possível trazer as atividades' : 'Nenhuma atividade cadastrada!'}
           </Typography>
         </Grid>
         <Grid item style={{ padding: "4rem" }}>
@@ -243,7 +263,7 @@ export default function Aluno() {
                   <Box id="stepper-header" className={styles.stepperHeader}>
                     <MobileStepper
                       variant="dots"
-                      steps={5}
+                      steps={atividadesData.length}
                       position="static"
                       activeStep={activeStep}
                     />
@@ -253,7 +273,7 @@ export default function Aluno() {
                    Body do stepper
                   */}
                   <Box id="stepper-body" className={styles.stepperBody}>
-                    {activeStep === 5 ?
+                    {activeStep === atividadesData.length ?
                       finalizarAtividadeStep() :
                       (
                         <FormControl style={{ width: "100%" }}>
@@ -292,7 +312,7 @@ export default function Aluno() {
                         Voltar
                       </Button>
                       <Box sx={{ flex: '1 1 auto' }} />
-                      {activeStep === 5 ? (
+                      {activeStep === atividadesData.length ? (
                         <Button onClick={finalizarAtividades} variant="contained" >
                           Finalizar
                         </Button>
