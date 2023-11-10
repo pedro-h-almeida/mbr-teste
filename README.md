@@ -23,7 +23,7 @@ yarn dev
 Abra [http://localhost:3000](http://localhost:3000) 
 ## Variáveis de Ambiente
 
-Para rodar esse projeto, você vai precisar criar um arquivo .env.local e adicionar a seguinte várivel de ambiente
+Para rodar esse projeto, você vai precisar criar um arquivo .env.local e adicionar a seguinte variável de ambiente
 
 
 `NEXT_PUBLIC_BASE_URL` = URL do back-end (Ex: http://localhost:3001)
