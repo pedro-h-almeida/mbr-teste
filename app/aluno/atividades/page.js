@@ -1,24 +1,25 @@
 'use client'
+import { useSearchParams } from 'next/navigation';
+import { Fragment, useEffect, useState } from 'react';
+import styles from './page.module.css';
 
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
+import CircularProgress from '@mui/material/CircularProgress';
 import Divider from '@mui/material/Divider';
 import FormControl from '@mui/material/FormControl';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import Grid from '@mui/material/Grid';
-import List from '@mui/material/List';
-import ListItem from '@mui/material/ListItem';
-import ListItemText from '@mui/material/ListItemText';
 import MobileStepper from '@mui/material/MobileStepper';
 import Radio from '@mui/material/Radio';
 import RadioGroup from '@mui/material/RadioGroup';
 import Typography from '@mui/material/Typography';
-import { useRouter, useSearchParams } from 'next/navigation';
-import { Fragment, useState, useEffect } from 'react';
-import styles from './page.module.css';
-import CircularProgress from '@mui/material/CircularProgress';
+
+import ErroConexao from './components/ErroConexao';
+import FinalizarAtividadeStep from './components/FinalizarAtividadeStep';
+import ShowScore from './components/ShowScore';
 
 
 const respostasUsuario = [
@@ -58,8 +59,6 @@ export default function Aluno() {
   const [value4, setValue4] = useState(null);
   const [value5, setValue5] = useState(null);
 
-
-  const router = useRouter();
   const searchParams = useSearchParams()
 
   const livroId = searchParams.get('livro')
@@ -151,93 +150,13 @@ export default function Aluno() {
     return `${respostasCertasCount} / ${atividadesData.length}`
   }
 
-  const finalizarAtividadeStep = () => {
-    return (
-      <Fragment>
-        <Typography variant="h5" style={{ paddingBottom: "1.5rem", textAlign: "center" }} >
-          Estas foram as suas escolhas, deseja finalizar as atividades?
-        </Typography>
-        <List style={{ backgroundColor: "rgb(250,250,250)", borderRadius: 20, overflow: 'hidden' }}>
-          {respostasUsuario.map((element, index) => {
-            const atividadeObj = atividadesData.find(x => x.idAtividade === element.idAtividade);
-            if (atividadeObj) {
-              const alternativaObj = atividadeObj.alternativas.find(x => x.idAlternativa === element.idAlternativa);
-              const alternativaIndex = atividadeObj.alternativas.findIndex(x => x.idAlternativa === element.idAlternativa);
-
-              const atividadeDesc = `${index + 1}) ${atividadeObj.descAtividade}`;
-              const alternativaDesc = `${alternativaIndex === 0 ? 'A' : alternativaIndex === 1 ? 'B' : alternativaIndex === 2 ? 'C' : 'D'} - ${alternativaObj.descAlternativa}`
-              return (
-                <Fragment key={index}>
-                  {index === 0 ? (
-                    <Divider />
-                  ) : ""}
-                  <ListItem sx={{ pb: 0 }}>
-                    <ListItemText primary={atividadeDesc} />
-                  </ListItem>
-                  <List disablePadding>
-                    <ListItem sx={{ pl: 4, }}>
-                      <ListItemText primary={alternativaDesc} />
-                    </ListItem>
-                  </List>
-                  {index !== respostasUsuario.length ? (
-                    <Divider />
-                  ) : ""}
-                </Fragment>
-              );
-            }
-          })}
-        </List>
-      </Fragment>
-    )
-  };
-
-  const showScoreComponent = () => {
-    return (
-      <Fragment>
-        <Grid
-          container
-          spacing={2}
-          direction="row"
-          justifyContent="center"
-          alignItems="center"
-        >
-          <Grid item xs={12}>
-            <Typography variant="h6" style={{ textAlign: "center" }} >
-              Olá {localStorage.getItem("nome")}, seu Score foi de {calcScore()}
-            </Typography>
-          </Grid>
-          <Grid item style={{ paddingTop: "2rem" }}>
-            <Button variant="contained" onClick={() => router.push(`/aluno`)}>Voltar</Button>
-          </Grid>
-        </Grid>
-      </Fragment>
-    )
-  };
-
   if (isLoading) return (
     <Box className={styles.main} style={{ placeContent: "center" }} >
       <CircularProgress style={{ width: "7rem", height: "7rem" }} />
     </Box>
   )
   if (atividadesData.length === 0) return (
-    <Box className={styles.main} >
-      <Grid
-        container
-        spacing={2}
-        direction="row"
-        justifyContent="center"
-        alignItems="center"
-      >
-        <Grid item xs={12}>
-          <Typography variant="h4" style={{ paddingBottom: "1rem", textAlign: "center" }} >
-            {connectionError ? 'Erro de Conexão, não foi possível trazer as atividades' : 'Nenhuma atividade cadastrada!'}
-          </Typography>
-        </Grid>
-        <Grid item style={{ padding: "4rem" }}>
-          <Button variant="contained" onClick={() => router.push(`/aluno`)}>Voltar</Button>
-        </Grid>
-      </Grid>
-    </Box>
+    <ErroConexao connectionError={connectionError} />
   )
 
   return (
@@ -254,7 +173,7 @@ export default function Aluno() {
 
             <CardContent>
               {isAtividadeDone ? (
-                showScoreComponent()
+                <ShowScore score={calcScore()} />
               ) : (
                 <Fragment>
                   {/* 
@@ -274,7 +193,7 @@ export default function Aluno() {
                   */}
                   <Box id="stepper-body" className={styles.stepperBody}>
                     {activeStep === atividadesData.length ?
-                      finalizarAtividadeStep() :
+                      <FinalizarAtividadeStep respostasUsuario={respostasUsuario} atividadesData={atividadesData} /> :
                       (
                         <FormControl style={{ width: "100%" }}>
                           <Typography variant="h6" style={{ paddingBottom: "1rem" }} >
